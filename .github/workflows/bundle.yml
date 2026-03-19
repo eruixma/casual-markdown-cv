@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TEMPLATE — copy this file into your project repo at:
+#   .github/workflows/bundle.yml
+#
+# Do NOT commit this to git-bridge itself.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Create Sync Bundle
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create/update releases
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # full history required for bundle
+
+      - name: Create git bundle
+        run: git bundle create repo.bundle --all
+
+      - name: Upload bundle to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bundle-latest
+          name: "Sync Bundle (latest)"
+          prerelease: true
+          files: repo.bundle
+          body: |
+            Auto-updated on every push to main.
+            Download URL (never changes):
+            https://github.com/${{ github.repository }}/releases/download/bundle-latest/repo.bundle
